@@ -1,0 +1,12 @@
+services:
+  db:
+    container_name: db
+    image: postgres:16.1
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: go-notebook
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: go-notebook
+    volumes:
+      - ./pgdata/data:/var/lib/postgresql/data
