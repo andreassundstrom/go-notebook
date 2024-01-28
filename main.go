@@ -9,7 +9,8 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/notebooks", controllers.Notebooks)
+	router.GET("/api/v1/notebooks", controllers.GetNotebooks)
+	router.POST("/api/v1/notebooks", controllers.CreateNotebook)
 
 	router.Run("localhost:5000")
 }

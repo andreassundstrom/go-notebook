@@ -19,9 +19,15 @@ func init() {
 	Db = db
 }
 
-func GetData() ([]models.Notebook, error) {
+func GetNotebooks() ([]models.Notebook, error) {
 	var notebooks []models.Notebook
-	rows, err := Db.Query("SELECT 1 as \"ID\", 'My notes' AS \"Name\", 'Author' AS \"Author\" ")
+	rows, err := Db.Query(`
+		SELECT
+			"Id",
+			"Name",
+			"Author"
+		FROM "Notebooks";
+		`)
 	if err != nil {
 		return nil, err
 	}
@@ -40,4 +46,24 @@ func GetData() ([]models.Notebook, error) {
 		return nil, err
 	}
 	return notebooks, nil
+}
+
+// Returns the created notebook
+func CreateNotebook(newNotebook *models.Notebook) (int64, error) {
+	var Id int64
+
+	res := Db.QueryRow(`
+	INSERT INTO "Notebooks" ("Id", "Name", "Author")
+	VALUES (DEFAULT, $1, $2)
+	RETURNING "Id";
+	`, newNotebook.Name, newNotebook.Author)
+
+	err := res.Scan(&Id)
+
+	if err != nil {
+		log.Fatalf("Error when getting last id: %v", err)
+		return 0, err
+	}
+
+	return Id, nil
 }
