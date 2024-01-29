@@ -19,3 +19,7 @@ docker exec -it db psql -U go-notebook -d go-notebook
 go-notebook=# CREATE TABLE "Notebooks" (
   ...
 ```
+
+## Testing
+
+Uses test-contianers. Running requires docker.

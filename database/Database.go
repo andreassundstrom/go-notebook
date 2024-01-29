@@ -8,20 +8,23 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var Db *sql.DB
+var NotebookRepo *NotebookRepository
 
-func init() {
-	connectionString := "user=go-notebook dbname=go-notebook host=localhost sslmode=disable password=password"
+type NotebookRepository struct {
+	Db *sql.DB
+}
+
+func (notebookRepository *NotebookRepository) InitRepository(connectionString string) {
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
-	Db = db
+	notebookRepository.Db = db
 }
 
-func GetNotebooks() ([]models.Notebook, error) {
+func (notebookRepository *NotebookRepository) GetNotebooks() ([]models.Notebook, error) {
 	var notebooks []models.Notebook
-	rows, err := Db.Query(`
+	rows, err := notebookRepository.Db.Query(`
 		SELECT
 			"Id",
 			"Name",
@@ -36,7 +39,7 @@ func GetNotebooks() ([]models.Notebook, error) {
 
 	for rows.Next() {
 		var notebook models.Notebook
-		if err := rows.Scan(&notebook.Id, &notebook.Author, &notebook.Name); err != nil {
+		if err := rows.Scan(&notebook.Id, &notebook.Name, &notebook.Author); err != nil {
 			return nil, err
 		}
 
@@ -49,10 +52,10 @@ func GetNotebooks() ([]models.Notebook, error) {
 }
 
 // Returns the created notebook
-func CreateNotebook(newNotebook *models.Notebook) (int64, error) {
+func (notebookRepository *NotebookRepository) CreateNotebook(newNotebook *models.Notebook) (int64, error) {
 	var Id int64
 
-	res := Db.QueryRow(`
+	res := notebookRepository.Db.QueryRow(`
 	INSERT INTO "Notebooks" ("Id", "Name", "Author")
 	VALUES (DEFAULT, $1, $2)
 	RETURNING "Id";

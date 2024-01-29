@@ -2,15 +2,14 @@ package main
 
 import (
 	"andreassundstrom/go-notebook/controllers"
-
-	"github.com/gin-gonic/gin"
+	"andreassundstrom/go-notebook/database"
 )
 
 func main() {
-	router := gin.Default()
+	connectionString := "user=go-notebook dbname=go-notebook host=localhost sslmode=disable password=password"
+	database.NotebookRepo = &database.NotebookRepository{}
+	database.NotebookRepo.InitRepository(connectionString)
 
-	router.GET("/api/v1/notebooks", controllers.GetNotebooks)
-	router.POST("/api/v1/notebooks", controllers.CreateNotebook)
-
+	router := controllers.SetupRouter()
 	router.Run("localhost:5000")
 }

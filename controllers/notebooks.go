@@ -3,14 +3,19 @@ package controllers
 import (
 	"andreassundstrom/go-notebook/database"
 	"andreassundstrom/go-notebook/models"
+	"database/sql"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetNotebooks(context *gin.Context) {
-	notebooks, err := database.GetNotebooks()
+type NotebookController struct {
+	Database *sql.DB
+}
+
+func (c *NotebookController) GetNotebooks(context *gin.Context) {
+	notebooks, err := database.NotebookRepo.GetNotebooks()
 	if err != nil {
 		context.String(500, "Failed to get notebooks")
 		return
@@ -20,7 +25,7 @@ func GetNotebooks(context *gin.Context) {
 	return
 }
 
-func CreateNotebook(context *gin.Context) {
+func (c *NotebookController) CreateNotebook(context *gin.Context) {
 	var newNotebook models.Notebook
 	if err := context.Bind(&newNotebook); err != nil {
 		log.Fatalf("Failed to parse json data: %v", err)
@@ -28,7 +33,7 @@ func CreateNotebook(context *gin.Context) {
 		return
 	}
 
-	newId, err := database.CreateNotebook(&newNotebook)
+	newId, err := database.NotebookRepo.CreateNotebook(&newNotebook)
 
 	if err != nil {
 		log.Fatalf("Failed to create new notebook: %v", err)
